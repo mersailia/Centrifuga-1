@@ -1,0 +1,197 @@
+<html dir="ltr" lang="ro-RO">
+    <head>
+        <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1,minimum-scale=1,maximum-scale=10,user-scalable=yes" user-scale="yes" />
+        <meta name="author" content="Merșa Ilia" />
+        <title>*** Centrifugă ***</title>
+        <style type="text/css">
+            :root{
+                --size-0:18px;
+                --size-1:calc(var(--size-0) / 30);
+                --color-0:#fff;
+                --color-1:#000;
+                --color-2:#bbb;
+                --color-3:#000;
+                --color-4:255,255,255;
+            }
+            .night{
+                --color-0:#000;
+                --color-1:#fff;
+                --color-2:#fc0;
+                --color-3:#ff0;
+                --color-4:0,0,0;
+            }
+            *{
+                margin:0;
+                padding:0;
+                color:var(--color-1);
+                text-shadow:var(--size-1) var(--size-1) 0 #ccc;
+                font:normal bolder var(--size-0) Times New Roman;
+            }
+            html,body{
+                width:100%;
+                height:100%;
+                background-color:var(--color-0);
+            }
+            #mode{
+                width:8vw;
+                height:8vw;
+                border-radius:50%;
+                border:.25vw solid var(--color-1);
+                box-shadow:0 0 30px var(--color-3);
+                background-color:var(--color-2);
+            }
+            #rocket{
+                width:40vw;
+                height:40vw;
+                transform-origin:center;
+                background-color:var(--color-1);
+                margin-left:15%;
+                margin-top:10vw;
+                clip-path:polygon(0 30%,0 70%,10% 70%,10% 55%,40% 55%,40% 60%,45% 60%,45% 90%,30% 90%,30% 100%,70% 100%,70% 90%,55% 90%,55% 60%,60% 60%,60% 55%,90% 55%,90% 70%,100% 70%,100% 30%,90% 30%,90% 45%,60% 45%,60% 40%,55% 40%,55% 10%,70% 10%,70% 0,30% 0,30% 10%,45% 10%,45% 40%,40% 40%,40% 45%,10% 45%,10% 30%);
+            }
+            #view{
+                width:20vw;
+                height:60vw;
+                padding:7.5px;
+                border:.4vw solid var(--color-1);
+                position:absolute;
+                right:.4vw;
+                top:.4vw;
+                & #ship{
+                    width:100%;
+                    height:100%;
+                    cursor:pointer;
+                    background:linear-gradient(to bottom,var(--color-2),var(--color-1) 2% 100%) no-repeat center / cover;
+                    clip-path:polygon(25% 0,45% 15%,45% 65%,5% 65%,5% 75%,45% 75%,45% 85%,40% 85%,50% 100%,60% 85%,55% 85%,55% 75%,95% 75%,95% 65%,55% 65%,55% 15%,75% 0);
+                }
+            }
+            table{
+                width:96%;
+                height:48vw;
+                border:.25px solid var(--color-1);
+                position:absolute;
+                left:2%;
+                bottom:12px;
+                & th{
+                    padding:5px;
+                    cursor:pointer;
+                    text-align:center;
+                    border:.25px solid var(--color-1);
+                    & #btn{
+                        width:80%;
+                        height:80%;
+                        background-color:var(--color-1);
+                        display:flex;
+                        align-items:center;
+                        justify-content:center;
+                        & span{
+                            width:100%;
+                            font-size:200%;
+                            cursor:pointer;
+                            text-align:center;
+                            color:var(--color-0);
+                            border-left:1px solid rgba(var(--color-4),.2);
+                        }
+                    }
+                }
+            }
+            #info{
+                padding:10px;
+                background-color:var(--color-2);
+                border-radius:5px;
+                box-shadow:0 0 10px var(--color-3);
+                margin-top:10vw;
+                animation:fade 10s linear infinite;
+            }
+            @keyframes rotate{
+                to{
+                    transform:rotate(-360deg);
+                }
+            }
+            @keyframes fade{
+                0%{
+                    opacity:0;
+                }
+                60%,100%{
+                    opacity:1;
+                }
+            }
+            @media only screen and (orientation:landscape){
+                html{
+                    cursor:pointer;
+                }
+                body{
+                    display:none;
+                }
+            }
+        </style>
+    </head>
+    <body class="night">
+        <div id="mode"></div>
+        <div id="rocket"></div>
+        <div id="view">
+            <div id="ship"></div>
+        </div>
+        <table id="board">
+            <thead>
+                <tr>
+                    <th>RPM<br />STOP</th>
+                    <th>Gravity<br />NO</th>
+                    <th>Speed<br />STOP</th>
+                </tr>
+                <tr>
+                    <th></th>
+                    <th colspan="2" style="cursor:none;">
+                        <center>
+                            <div id="btn">
+                                <span>-</span>
+                                <span>+</span>
+                            </div>
+                        </center>
+                    </th>
+                </tr>
+            </thead>
+        </table>
+        <div id="info">
+            <h3>Instrucțiuni de utilizare</h3>
+            <p>Folosește butoanele '- +' pentru a ajusta RPM ( rotații pe minut ).</p>
+            <p>Apasă pe butonul 'soare/lună' pentru a schimba între modul zi și noapte.</p>
+        </div>
+    </body>
+    <script type="text/javascript">
+        const {pow,PI:pi}=Math,
+              f=(v=0,z=1)=>(v*1).toFixed(z),
+              body=document.querySelector('body'),
+              mode=document.getElementById('mode'),
+              obj=document.getElementById('rocket'),
+              txt=document.querySelectorAll('th'),
+              btns=document.querySelectorAll('#btn span');
+        mode.onclick=()=>body.classList.toggle('night');
+        const max=24,
+              d=50;
+        let sps=0;
+        btns.forEach((itm,ind)=>{
+            itm.onclick=()=>{
+                try{
+                    if(ind==0) sps--;
+                    if(ind==1) sps++;
+                    if(sps<=0) sps=0;
+                    if(sps>=max) sps=max;
+                    let rpm=(sps/2)||0,
+                        r=d/2,
+                        v=r*((rpm*2*pi)/60),
+                        g=pow(v,2)/r,
+                        gravity=g<=0?'NO':`${f(g/9.8,2)}g<br/>${f(g)}N/Kg`,
+                        speed=v<=0?'STOP':`${f(v)}m/s<br/>${f(v*3.6)}km/h<br/>${f((v*3.6)/1.609334)}miph`;
+                    obj.style.animation=rpm<=0?'none':`rotate ${60/rpm}s linear infinite`;
+                    txt[0].innerHTML=`RPM<br/>${rpm<=0?'STOP':f(rpm)}`;
+                    txt[1].innerHTML=`Gravity<br/>${gravity}`;
+                    txt[2].innerHTML=`Speed<br/>${speed}`;
+                    txt[3].innerHTML=`Diameter<br/>${f(d)}m`;
+                }catch(err){
+                    alert(err);
+                };
+            };
+        });
+    </script>
+</html>
